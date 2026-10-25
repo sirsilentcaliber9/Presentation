@@ -6,7 +6,9 @@ export const PROJECTION_STORAGE_KEY = 'mesopotamie-projection-state-v1';
 export type ProjectionMedia =
   | 'workshop' | 'pazuzu' | 'clip' | 'babylon' | 'utukku'
   | 'palmyre' | 'ginnaye' | 'jinn' | 'arabians' | 'preIslam'
-  | 'cemeteries' | 'invisible' | 'animal';
+  | 'cemeteries' | 'invisible' | 'animal' | 'chapter2'
+  | 'blackCats' | 'blackDogs' | 'blackAndWhite'
+  | 'invocationSteps' | 'djinnCall' | 'hairRitual';
 export type ProjectionState = {
   media: ProjectionMedia;
   clipPlaying: boolean;
@@ -25,12 +27,17 @@ const initialProjectionState: ProjectionState = {
   targetText: null,
 };
 
-const videoMedia: ProjectionMedia[] = ['clip', 'ginnaye', 'jinn', 'arabians', 'preIslam', 'cemeteries', 'invisible'];
+const videoMedia: ProjectionMedia[] = [
+  'clip', 'ginnaye', 'jinn', 'arabians', 'preIslam', 'cemeteries', 'invisible',
+  'blackCats', 'blackDogs', 'blackAndWhite', 'invocationSteps', 'djinnCall', 'hairRitual',
+];
 
 function isProjectionMedia(value: unknown): value is ProjectionMedia {
   return typeof value === 'string' && [
     'workshop', 'pazuzu', 'clip', 'babylon', 'utukku', 'palmyre',
     'ginnaye', 'jinn', 'arabians', 'preIslam', 'cemeteries', 'invisible', 'animal',
+    'chapter2', 'blackCats', 'blackDogs', 'blackAndWhite',
+    'invocationSteps', 'djinnCall', 'hairRitual',
   ].includes(value);
 }
 
