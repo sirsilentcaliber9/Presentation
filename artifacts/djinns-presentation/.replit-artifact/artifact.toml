@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Présentation scolaire sur les djinns"
+description = "Une présentation scolaire interactive en français sur les djinns, avec un mode projection et une console de notes pour l’orateur."
+version = "1.0.0"
+id = "artifacts/djinns-presentation"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25546
+
+[services.development]
+run = "pnpm --filter @workspace/djinns-presentation run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/djinns-presentation", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/djinns-presentation/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25546"
+BASE_PATH = "/"

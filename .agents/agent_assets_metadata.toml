@@ -1,0 +1,17 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Etv-UVUOrhAcS15rz_dOr"
+uri = "file://.local/conversation-workspace/files/Presentation-scolaire-sur-les-djinns-modifie.zip"
+type = "unspecified"
+title = "Présentation scolaire sur les djinns — version modifiée"
+description = "Archive du projet mise à jour : en-têtes et note de vérification supprimés, Espace bascule lecture/pause en scène 2 et le texte privé change à la pause."
+logical_id = "36a5b900-710d-4136-9745-e66689ec9a0e"
+content_hash = "sha256:cfbbc3a989e3bafd919c28a95c065910eebb22edfba764aac95d6e4495ba730c"
+size = 6708501
+mtime_ms = 1792956047457
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/conversation:0b9560a4-8d2f-453c-ad2e-410e999721d9/36a5b900-710d-4136-9745-e66689ec9a0e/e045ca4a-086a-4b2c-954a-06674120dc7c"
+storage_version_token = "1792956058109481"
+content_type = "application/octet-stream"
+source_uri = "file://Presentation-scolaire-sur-les-djinns-modifie.zip"
