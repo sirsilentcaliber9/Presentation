@@ -18,7 +18,7 @@ import blackAndWhiteVideo from '../assets/chapter1-black-and-white.mp4';
 import invocationStepsVideo from '../assets/chapter2-invocation-steps.mp4';
 import djinnCallVideo from '../assets/chapter2-djinn-call.mp4';
 import hairRitualVideo from '../assets/chapter2-hair-ritual.mp4';
-import { ExternalLink, LockKeyhole, RotateCcw, X, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ExternalLink, LockKeyhole, X, ArrowLeft, ArrowRight } from 'lucide-react';
 import { ProjectionMedia, useProjectionState } from '@/lib/projection-state';
 
 const mediaDetails: Record<ProjectionMedia, { label: string; image?: string; video?: string }> = {
@@ -58,7 +58,6 @@ const preloadUrls = Array.from(new Set([
   cemeteriesVideo,
   invisibleVideo,
   animalImage,
-  utukkuPhoto,
   blackCatsVideo,
   blackDogsVideo,
   blackAndWhiteVideo,
@@ -123,10 +122,8 @@ function Hotspot({
   );
 }
 
-const isVideoMedia = (media: ProjectionMedia) => Boolean(mediaDetails[media].video);
-
 export default function Presenter() {
-  const { state, publish, setMedia, setOverlay, toggleClip } = useProjectionState();
+  const { state, publish, setMedia, setOverlay } = useProjectionState();
   const projectionWindow = useRef<Window | null>(null);
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const [windowOpen, setWindowOpen] = useState(false);
@@ -294,11 +291,6 @@ export default function Presenter() {
           </div>
         )}
 
-        <aside className="single-screen-fallback" data-testid="note-single-screen-fallback">
-          <strong>Un seul écran ?</strong> Projetez uniquement la fenêtre publique et gardez
-          le texte sur un autre appareil ou sur papier. Ne partagez pas la console privée.
-        </aside>
-
         <section className="console-grid" aria-label="Console de présentation">
           <article className="preview-panel">
             <div className="panel-label">
@@ -458,32 +450,6 @@ export default function Presenter() {
           </div>
         </section>
 
-        <section className="controls-panel" aria-label="Commandes de projection">
-          <div className="control-position">
-            <span className="eyebrow">Visuel actif</span>
-            <strong data-testid="text-current-media">{currentMedia.label}</strong>
-            <small>Le choix reste affiché jusqu’au prochain mot-repère.</small>
-          </div>
-          <div className="control-actions">
-            {isVideoMedia(state.media) && (
-              <button className="control-button secondary-control" onClick={toggleClip} data-testid="button-toggle-clip">
-                {state.clipPlaying ? 'Espace · mettre en pause' : 'Espace · reprendre'}
-              </button>
-            )}
-            <button className="control-button secondary-control" onClick={() => { setScriptPage(1); publish(); }} data-testid="button-return-start">
-              <RotateCcw size={15} /> Revenir à l’atelier
-            </button>
-          </div>
-          <p className="future-note" data-testid="status-narration">
-            La narration reste visible dans cette fenêtre, indépendamment du clip.
-          </p>
-        </section>
-
-        <footer className="console-footer">
-          <span>La fenêtre publique est une surface d’affichage distincte, pas un espace sécurisé.</span>
-          <span>Les notes restent uniquement dans cette console.</span>
-          <span>Survol, focus ou clic sur un mot-repère : changer le visuel public.</span>
-        </footer>
       </div>
     </main>
   );
