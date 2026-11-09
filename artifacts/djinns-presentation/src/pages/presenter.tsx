@@ -1,70 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import workshopImage from '../assets/sumerian-workshop.jpg';
-import pazuzuImage from '../assets/pazuzu.png';
-import pazuzuVideo from '../assets/pazuzu.mp4';
-import babylonImage from '../assets/babylonian-gate.jpg';
-import palmyreImage from '../assets/palmyre-city.jpg';
-import ginnayeVideo from '../assets/ginnaye-clip.mp4';
-import jinnVideo from '../assets/jinn-clip.mp4';
-import arabiansVideo from '../assets/arabians-clip.mp4';
-import preIslamVideo from '../assets/pre-islam-clip.mp4';
-import cemeteriesVideo from '../assets/cemeteries-clip.mp4';
-import invisibleVideo from '../assets/invisible-loop.mp4';
-import animalImage from '../assets/animal-form.jpg';
-import utukkuPhoto from '../assets/utukku-photo.jpg';
-import blackCatsVideo from '../assets/chapter1-black-cats.mp4';
-import blackDogsVideo from '../assets/chapter1-black-dogs.mp4';
-import blackAndWhiteVideo from '../assets/chapter1-black-and-white.mp4';
-import invocationStepsVideo from '../assets/chapter2-invocation-steps.mp4';
-import djinnCallVideo from '../assets/chapter2-djinn-call.mp4';
-import hairRitualVideo from '../assets/chapter2-hair-ritual.mp4';
 import { ExternalLink, LockKeyhole, X, ArrowLeft, ArrowRight } from 'lucide-react';
-import { ProjectionMedia, useProjectionState } from '@/lib/projection-state';
+import { ProjectionScene } from '@/components/projection-scene';
+import { projectionAssetUrls, presentationMedia } from '@/lib/presentation-media';
+import { ProjectionMedia, type FloatingTermId, useProjectionState } from '@/lib/projection-state';
 
-const mediaDetails: Record<ProjectionMedia, { label: string; image?: string; video?: string }> = {
-  workshop: { label: 'Atelier sumérien', image: workshopImage },
-  pazuzu: { label: 'Pazuzu', image: pazuzuImage },
-  clip: { label: 'Pazuzu · monde souterrain', video: pazuzuVideo },
-  babylon: { label: 'Porte de Babylone', image: babylonImage },
-  utukku: { label: 'Utukku · porte de Babylone', image: babylonImage },
-  palmyre: { label: 'Palmyre', image: palmyreImage },
-  ginnaye: { label: 'Ginnayé', video: ginnayeVideo },
-  jinn: { label: 'Jinn', video: jinnVideo },
-  arabians: { label: 'Arabes et Bédouins', video: arabiansVideo },
-  preIslam: { label: 'Avant l’islam', video: preIslamVideo },
-  cemeteries: { label: 'Cimetières', video: cemeteriesVideo },
-  invisible: { label: 'Créatures invisibles', video: invisibleVideo },
-  animal: { label: 'Apparence animale', image: animalImage },
-  chapter2: { label: 'Chapter 2 · Invoquer les djinns', image: workshopImage },
-  blackCats: { label: 'Chats noirs', video: blackCatsVideo },
-  blackDogs: { label: 'Chiens noirs', video: blackDogsVideo },
-  blackAndWhite: { label: 'Noir et blanc', video: blackAndWhiteVideo },
-  invocationSteps: { label: 'Étapes d’invocation', video: invocationStepsVideo },
-  djinnCall: { label: 'Invocation du djinn', video: djinnCallVideo },
-  hairRitual: { label: 'Cheveux et rituel', video: hairRitualVideo },
-};
-
-const preloadUrls = Array.from(new Set([
-  workshopImage,
-  pazuzuImage,
-  pazuzuVideo,
-  babylonImage,
-  utukkuPhoto,
-  palmyreImage,
-  ginnayeVideo,
-  jinnVideo,
-  arabiansVideo,
-  preIslamVideo,
-  cemeteriesVideo,
-  invisibleVideo,
-  animalImage,
-  blackCatsVideo,
-  blackDogsVideo,
-  blackAndWhiteVideo,
-  invocationStepsVideo,
-  djinnCallVideo,
-  hairRitualVideo,
-]));
+type ScriptPage = 1 | 2 | 3 | 4 | 5 | 6;
 
 type AssetPreloadState = {
   status: 'loading' | 'ready' | 'failed';
@@ -74,10 +14,53 @@ type AssetPreloadState = {
   failures: string[];
 };
 
+async function preloadAsset(url: string) {
+  const response = await fetch(url, { cache: 'force-cache', credentials: 'same-origin' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.arrayBuffer();
+  if (data.byteLength === 0) throw new Error('Empty asset');
+
+  const pathname = new URL(url, window.location.href).pathname;
+  if (/\.(?:png|jpe?g)$/i.test(pathname)) {
+    const type = response.headers.get('content-type') || 'image/jpeg';
+    const objectUrl = URL.createObjectURL(new Blob([data], { type }));
+    try {
+      const image = new Image();
+      image.src = objectUrl;
+      await image.decode();
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+    return;
+  }
+
+  if (/\.(?:mp4|webm)$/i.test(pathname)) {
+    const objectUrl = URL.createObjectURL(new Blob([data], { type: 'video/mp4' }));
+    const video = document.createElement('video');
+    video.preload = 'auto';
+    video.muted = true;
+    video.playsInline = true;
+    try {
+      await new Promise<void>((resolve, reject) => {
+        video.addEventListener('loadeddata', () => resolve(), { once: true });
+        video.addEventListener('error', () => reject(new Error(`Unable to decode ${url}`)), { once: true });
+        video.src = objectUrl;
+        video.load();
+      });
+    } finally {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      URL.revokeObjectURL(objectUrl);
+    }
+  }
+}
+
 type HotspotProps = {
   media: ProjectionMedia;
   testId: string;
   children: string;
+  ariaLabel?: string;
   overlayText?: string;
   showArrow?: boolean;
   targetText?: string;
@@ -94,12 +77,18 @@ function Hotspot({
   media,
   testId,
   children,
+  ariaLabel,
   overlayText,
   showArrow,
   targetText,
   onSelectOverlay,
   onSelect,
 }: HotspotProps) {
+  const percentMatch = children.match(/^(.*\s)?(\d+\s*%)(\s*[^\p{L}\p{M}\p{N}%]*)$/u);
+  const lastWordMatch = percentMatch ?? children.match(/^(.*\s)?([\p{L}\p{N}][\p{L}\p{M}\p{N}%’'\-]*)(\s*[^\p{L}\p{M}\p{N}%’'\-]*)$/u);
+  const prefix = lastWordMatch?.[1] ?? '';
+  const triggerWord = lastWordMatch?.[2] ?? children;
+  const suffix = lastWordMatch?.[3] ?? '';
   const select = () => {
     if (onSelectOverlay) {
       onSelectOverlay(overlayText ?? null, showArrow ?? false, targetText ?? null);
@@ -108,36 +97,39 @@ function Hotspot({
     onSelect(media, overlayText ?? null, showArrow ?? false, targetText ?? null);
   };
   return (
-    <button
-      type="button"
-      className="script-hotspot"
-      data-testid={testId}
-      aria-label={`Afficher ${mediaDetails[media].label} sur la projection`}
-      onMouseEnter={select}
-      onFocus={select}
-      onClick={select}
-    >
-      {children}
-    </button>
+    <>
+      {prefix}
+      <button
+        type="button"
+        className="script-hotspot"
+        data-testid={testId}
+        aria-label={ariaLabel ?? `Afficher ${presentationMedia[media].label} sur la projection`}
+        onMouseEnter={select}
+        onFocus={select}
+        onClick={select}
+      >
+        {triggerWord}
+      </button>
+      {suffix}
+    </>
   );
 }
 
 export default function Presenter() {
-  const { state, publish, setMedia, setOverlay } = useProjectionState();
+  const { state, publish, setMedia, setOverlay, addFloatingTerm } = useProjectionState();
   const projectionWindow = useRef<Window | null>(null);
-  const previewVideoRef = useRef<HTMLVideoElement>(null);
   const [windowOpen, setWindowOpen] = useState(false);
   const [popupBlocked, setPopupBlocked] = useState(false);
-  const [scriptPage, setScriptPage] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [scriptPage, setScriptPage] = useState<ScriptPage>(1);
   const [preloadAttempt, setPreloadAttempt] = useState(0);
   const [assetPreload, setAssetPreload] = useState<AssetPreloadState>({
     status: 'loading',
     loaded: 0,
     completed: 0,
-    total: preloadUrls.length,
+    total: projectionAssetUrls.length,
     failures: [],
   });
-  const currentMedia = mediaDetails[state.media];
+  const currentMedia = presentationMedia[state.media];
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -158,52 +150,42 @@ export default function Presenter() {
       status: 'loading',
       loaded: 0,
       completed: 0,
-      total: preloadUrls.length,
+      total: projectionAssetUrls.length,
       failures: [],
     });
 
-    const requests = preloadUrls.map(async (url) => {
-      try {
-        const response = await fetch(url, { cache: 'force-cache', credentials: 'same-origin' });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.arrayBuffer();
-        if (data.byteLength === 0) throw new Error('Empty asset');
-
-        if (/\.(?:png|jpe?g)$/i.test(new URL(url, window.location.href).pathname)) {
-          const type = response.headers.get('content-type') || 'image/jpeg';
-          const objectUrl = URL.createObjectURL(new Blob([data], { type }));
-          try {
-            const image = new Image();
-            image.src = objectUrl;
-            await image.decode();
-          } finally {
-            URL.revokeObjectURL(objectUrl);
+    const queue = [...projectionAssetUrls];
+    const worker = async () => {
+      while (queue.length) {
+        const url = queue.shift();
+        if (!url) continue;
+        try {
+          await preloadAsset(url);
+          loaded += 1;
+        } catch {
+          failures.push(url);
+        } finally {
+          completed += 1;
+          if (active) {
+            setAssetPreload({
+              status: 'loading',
+              loaded,
+              completed,
+              total: projectionAssetUrls.length,
+              failures: [...failures],
+            });
           }
         }
-        loaded += 1;
-      } catch {
-        failures.push(url);
-      } finally {
-        completed += 1;
-        if (active) {
-          setAssetPreload({
-            status: 'loading',
-            loaded,
-            completed,
-            total: preloadUrls.length,
-            failures: [...failures],
-          });
-        }
       }
-    });
+    };
 
-    void Promise.all(requests).then(() => {
+    void Promise.all(Array.from({ length: Math.min(4, queue.length) }, () => worker())).then(() => {
       if (!active) return;
       setAssetPreload({
         status: failures.length ? 'failed' : 'ready',
         loaded,
         completed,
-        total: preloadUrls.length,
+        total: projectionAssetUrls.length,
         failures: [...failures],
       });
     });
@@ -213,21 +195,26 @@ export default function Presenter() {
     };
   }, [preloadAttempt]);
 
-  useEffect(() => {
-    const video = previewVideoRef.current;
-    if (!currentMedia.video || !video) return;
-    if (state.clipPlaying) {
-      if (video.ended) video.currentTime = 0;
-      void video.play().catch(() => undefined);
-    } else {
-      video.pause();
+  const changeScriptPage = (page: ScriptPage) => {
+    setScriptPage(page);
+    if (page === 1) {
+      publish();
+    } else if (page === 2 || page === 5) {
+      setMedia('palmyre');
+    } else if (page === 3) {
+      setMedia('toiletChapter');
+    } else if (page === 4) {
+      setMedia('chapter2');
+    } else if (page === 6) {
+      setMedia('chapter3');
     }
-  }, [currentMedia.video, state.clipPlaying, state.media, state.resetToken]);
+  };
+  const goToPreviousPage = () => changeScriptPage(Math.max(1, scriptPage - 1) as ScriptPage);
+  const goToNextPage = () => changeScriptPage(Math.min(6, scriptPage + 1) as ScriptPage);
 
   const projectionUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/projection`;
   const openProjection = () => {
     if (assetPreload.status !== 'ready') return;
-    publish();
     const opened = window.open(projectionUrl, 'pazuzu-projection', 'popup');
     if (opened) {
       projectionWindow.current = opened;
@@ -265,9 +252,9 @@ export default function Presenter() {
             data-testid="status-media-preload"
           >
             {assetPreload.status === 'loading' && (
-              <span>Préchargement des visuels · {assetPreload.loaded} / {assetPreload.total}</span>
+              <span>Préchargement des images et vidéos · {assetPreload.loaded} / {assetPreload.total}</span>
             )}
-            {assetPreload.status === 'ready' && <span>Tous les visuels sont chargés · projection prête</span>}
+            {assetPreload.status === 'ready' && <span>Images et vidéos prêtes · projection immédiate</span>}
             {assetPreload.status === 'failed' && (
               <>
                 <span>Échec du préchargement ({assetPreload.failures.length} fichier(s)). La projection reste désactivée.</span>
@@ -297,44 +284,8 @@ export default function Presenter() {
               <span>Aperçu de la projection</span>
               <span data-testid="text-preview-media">{currentMedia.label}</span>
             </div>
-            <div className="slide-preview" data-testid="panel-slide-preview">
-              {currentMedia.video ? (
-                <video
-                  key={`${state.resetToken}-${state.media}`}
-                  ref={previewVideoRef}
-                  className="presenter-preview-video"
-                  src={currentMedia.video}
-                  autoPlay={state.clipPlaying}
-                  muted
-                  loop={state.media === 'invisible'}
-                  playsInline
-                  aria-label={`Aperçu vidéo : ${currentMedia.label}`}
-                  data-testid="video-private-preview"
-                />
-              ) : (
-                <img src={currentMedia.image} alt="" data-testid="image-private-preview" />
-              )}
-              {state.media === 'utukku' && <img className="preview-utukku-overlay" src={utukkuPhoto} alt="" />}
-              {state.overlayText && (
-                <div className={`preview-overlay-label ${state.overlayText === 'UTUKKU' ? 'is-utukku' : ''}`}>
-                  <span>{state.overlayText}</span>
-                  {state.showArrow && <span className="preview-label-arrow" aria-hidden="true">→</span>}
-                  {state.targetText && <span className="preview-label-target">{state.targetText}</span>}
-                </div>
-              )}
-              {state.media === 'utukku' && (
-                <div className="preview-chapter-subtitle">
-                  <span>Chapter 1</span>
-                  <strong>Il vit dans les toilettes</strong>
-                </div>
-              )}
-              {state.media === 'chapter2' && (
-                <div className="preview-chapter-card">
-                  <span>Chapter 2</span>
-                  <strong>Invoquer les djinns</strong>
-                </div>
-              )}
-              {state.media === 'workshop' && <div className="preview-title">Aux origines des croyances surnaturelles</div>}
+            <div className="slide-preview">
+              <ProjectionScene state={state} mode="preview" />
             </div>
             <div className="preview-caption">
               <span>Visuel public · sans notes d’orateur</span>
@@ -345,7 +296,7 @@ export default function Presenter() {
           <div className="presenter-column">
             <article className="script-panel">
               <div className="panel-label">
-                <span>Texte à dire · page {scriptPage} sur 5</span>
+                <span>Texte à dire · page {scriptPage} sur 6</span>
                 <span className="private-badge"><LockKeyhole size={12} /> Privé</span>
               </div>
               {scriptPage === 1 ? (
@@ -382,15 +333,15 @@ export default function Presenter() {
                 </div>
               ) : scriptPage === 3 ? (
                 <div className="script-text" data-testid="text-private-script" data-script-page="3">
-                  <h2 className="script-chapter-title">Chapter 1</h2>
+                  <h2 className="script-chapter-title">Chapter 2</h2>
                   <p>
-                    Il vit dans les toilettes.
+                    Il vivait dans les toilettes.
                   </p>
                   <p>
                     Réfléchissez-y un instant. Sur quoi se sont-ils basés pour vous affirmer que les djinns vivent dans les toilettes et les endroits sales ? Je veux dire, pourquoi exactement les toilettes, parmi tous les endroits du monde ?
                   </p>
                   <p>
-                    Ils avaient une mentalité assez simpliste. Ils se disaient que, puisque ces créatures étaient « mauvaises », alors, logiquement, elles devaient vivre dans des endroits mauvais. C’est exactement comme lorsqu’ils affirment que les <Hotspot media="blackCats" testId="hotspot-black-cats" onSelect={setMedia}>chats noirs</Hotspot> portent malheur. Pourquoi ? Parce qu’ils sont noirs ! Et que les <Hotspot media="blackDogs" testId="hotspot-black-dogs" onSelect={setMedia}>chiens noirs</Hotspot> sont des « démons ». Pourquoi ? Parce qu’ils sont noirs !
+                    Ils avaient une mentalité assez simpliste. Ils se disaient que, puisque ces créatures étaient « mauvaises », alors, logiquement, elles devaient vivre dans des endroits mauvais. C’est exactement comme lorsqu’ils affirment que les <Hotspot media="blackCats" testId="hotspot-black-cats" onSelect={setMedia}>chats noirs</Hotspot> portent malheur. Pourquoi ? Parce qu’ils sont noirs ! Et que les chiens noirs sont des « démons ». Pourquoi ? Parce qu’ils <Hotspot media="blackDogs" testId="hotspot-black-dogs" onSelect={setMedia}>sont noirs !</Hotspot>
                   </p>
                   <p>
                     Et qu’en est-il de l’âne noir ? Si vous en voyez un dans votre sommeil, cela annoncerait une catastrophe imminente ! Et les araignées noires, alors ? Cela signifierait qu’un malheur va bientôt vous arriver ! Et les anges, dans tout ça ? Les anges sont-ils blancs ou noirs ? Puisqu’ils sont blancs, alors c’est forcément quelque chose de bien ! Ces gens expliquaient la vie par la couleur : <Hotspot media="blackAndWhite" testId="hotspot-color" onSelect={setMedia}>noir ou blanc</Hotspot>.
@@ -398,9 +349,7 @@ export default function Presenter() {
                 </div>
               ) : scriptPage === 4 ? (
                 <div className="script-text" data-testid="text-private-script" data-script-page="4">
-                  <h2 className="script-chapter-title">
-                    <Hotspot media="chapter2" testId="hotspot-chapter-2" onSelect={setMedia}>Chapter 2 : « Invoquer les djinns »</Hotspot>
-                  </h2>
+                  <h2 className="script-chapter-title">Chapter 2 : « Invoquer les djinns »</h2>
                   <p>
                     Vous êtes-vous déjà questionné ? Qui a découvert comment invoquer la magie, les djinns, les démons, ou quel que soit le nom donné à cette superstition ?
                   </p>
@@ -414,9 +363,8 @@ export default function Presenter() {
                     J’aimerais aussi comprendre quelque chose. Quel djinn, exactement, va vous aider ? Je veux dire, lequel va exaucer vos souhaits ?
                   </p>
                 </div>
-              ) : (
+              ) : scriptPage === 5 ? (
                 <div className="script-text" data-testid="text-private-script" data-script-page="5">
-                  <h2 className="script-chapter-title">Chapter 2 · suite</h2>
                   <p>
                     Imaginons qu’il existe un million de djinns. Est-ce qu’ils font la queue pour aider les gens, chacun leur tour ? Ou est-ce une question de chance pour eux ? Est-ce que le djinn sait à l’avance qu’on va l’invoquer et qu’il devra se mettre au travail ? Ou bien est-il tranquillement occupé à ses affaires quand, soudain, il apprend que quelqu’un l’appelle ? Alors, il se précipite pour savoir ce qu’on lui veut ?
                   </p>
@@ -436,13 +384,56 @@ export default function Presenter() {
                     Imaginons que vous ayez fait tout ça et, en supposant bien sûr que les djinns existent. Et si le djinn ne se manifestait pas, qu’est-ce que vous feriez ? Vous iriez le chercher vous-même ?
                   </p>
                 </div>
+              ) : (
+                <div className="script-text chapter-three-script" data-testid="text-private-script" data-script-page="6">
+                  <h2 className="script-chapter-title">Chapitre 3 : « L’explication scientifique derrière la possession »</h2>
+                  <p>
+                    Il y a eu une étude menée par un <Hotspot media="chapter3Group" testId="hotspot-chapter3-group" onSelect={setMedia}>groupe</Hotspot> de personnes hospitalisées dans un établissement psychiatrique en Chine, qui croyaient être possédées.
+                  </p>
+                  <p>
+                    Et ces personnes présentaient effectivement des symptômes étranges que beaucoup associent aux phénomènes de possession, comme l’incapacité à contrôler leurs propres <Hotspot media="chapter3Movements" testId="hotspot-chapter3-movements" onSelect={setMedia}>mouvements</Hotspot> ou leur corps, des comportements soudains et inhabituels, et parfois même des changements dans leur propre <Hotspot media="chapter3Voice" testId="hotspot-chapter3-voice" onSelect={setMedia}>voix</Hotspot>.
+                  </p>
+                  <p>
+                    Le scientifique ayant mené cette étude, après avoir rencontré les patients, a diagnostiqué leur état et a conclu qu’ils souffraient d’un trouble mental appelé « <Hotspot media="possessionDiagnosis" testId="hotspot-possession-diagnosis" onSelect={setMedia}>trouble de la possession</Hotspot> », qui fait partie d’une catégorie de <Hotspot media="chapter3Diagnosis" testId="hotspot-chapter3-diagnosis" onSelect={setMedia}>troubles</Hotspot> appelée « <Hotspot media="dissociativeTrance" testId="hotspot-dissociative-trance" onSelect={setMedia}>trouble dissociatif de transe</Hotspot> ».
+                  </p>
+                  <p>
+                    <Hotspot media="study45" testId="hotspot-possession-45" onSelect={setMedia}>45 %</Hotspot> des participants à l’étude croyaient être possédés par une personne décédée. En Chine, ils appellent cela « <Hotspot media="kweiFu" testId="hotspot-kwei-fu" onSelect={setMedia}>Kwei Fu</Hotspot> », et c’est la forme de possession la plus répandue dans le pays.
+                  </p>
+                  <p>
+                    Tout comme chez nous, nous avons la <Hotspot media="beliefs" ariaLabel="Afficher les croyances liées aux djinns" testId="hotspot-belief-jinns" onSelect={() => addFloatingTerm('jinnPossession')}>possession par les djinns</Hotspot>, le <Hotspot media="beliefs" ariaLabel="Afficher le Mas des djinns" testId="hotspot-belief-mas" onSelect={() => addFloatingTerm('masDjinns')}>Mas des djinns</Hotspot>, les <Hotspot media="beliefs" ariaLabel="Afficher les Lamss" testId="hotspot-belief-lamss" onSelect={() => addFloatingTerm('lamss')}>Lamss</Hotspot>, la <Hotspot media="beliefs" ariaLabel="Afficher la magie noire" testId="hotspot-belief-magic" onSelect={() => addFloatingTerm('blackMagic')}>magie noire</Hotspot>, les <Hotspot media="beliefs" ariaLabel="Afficher les pratiques occultes" testId="hotspot-belief-occult" onSelect={() => addFloatingTerm('occultPractices')}>pratiques occultes</Hotspot>…
+                  </p>
+                  <p>
+                    Chaque société classe ses propres superstitions à sa manière. D’autres sociétés font de même et possèdent leurs propres catégories de phénomènes de possession.
+                  </p>
+                  <p>
+                    <Hotspot media="study25" testId="hotspot-possession-25" onSelect={setMedia}>25 %</Hotspot> d’entre eux croyaient être possédés par une divinité, 20 % par un animal et <Hotspot media="study10" testId="hotspot-possession-10" onSelect={setMedia}>10 %</Hotspot> par un démon. Cela signifie-t-il que ces entités les possèdent réellement ?
+                  </p>
+                  <p>
+                    Bien sûr que non. Tous ces individus sont des patients, aussi différents que puissent être leurs symptômes.
+                  </p>
+                  <p>
+                    Car, selon le DSM-5, ou le <Hotspot media="dsmReference" testId="hotspot-dsm-reference" onSelect={setMedia}>Manuel diagnostique et statistique des troubles mentaux</Hotspot>, le trouble de la possession peut tirer certains de ses symptômes des propres croyances du patient.
+                  </p>
+                  <p>
+                    Qu’est-ce que cela signifie ? Cela signifie que, pour comprendre les symptômes d’un patient, il faut connaître son environnement, savoir où il vit, ce en quoi il croit et par quelle entité il pense être possédé.
+                  </p>
+                  <p>
+                    En fonction de ces croyances, certains symptômes vont apparaître chez lui : des symptômes qu’il s’attend lui-même à présenter lorsqu’une personne est supposément <Hotspot media="chapter3Explanation" testId="hotspot-chapter3-explanation" onSelect={setMedia}>possédée</Hotspot>.
+                  </p>
+                  <p>
+                    Et c’est pour cette raison que les chrétiens souffrant de ce trouble deviennent extrêmement furieux lorsqu’on place une croix devant <Hotspot media="crossReaction" testId="hotspot-cross-reaction" onSelect={setMedia}>eux</Hotspot>. Parce qu’ils croient être possédés par un démon et sont profondément convaincus que les démons craignent la croix.
+                  </p>
+                  <p>
+                    De même, les musulmans souffrant de ce trouble peuvent entrer dans une grande colère lorsqu’on récite le Coran devant <Hotspot media="quranReaction" testId="hotspot-quran-reaction" onSelect={setMedia}>eux</Hotspot>, et les <Hotspot media="shiaReaction" testId="hotspot-shia-reaction" onSelect={setMedia}>shiaas aussi</Hotspot>, car ils associent ces réactions aux symptômes de la possession par les <Hotspot media="djinnReaction" testId="hotspot-djinn-reaction" onSelect={setMedia}>djinns</Hotspot>.
+                  </p>
+                </div>
               )}
               <div className="script-pagination">
-                <button className="control-button secondary-control" onClick={() => setScriptPage((page) => (page === 1 ? 1 : (page - 1) as 1 | 2 | 3 | 4 | 5))} disabled={scriptPage === 1} data-testid="button-previous-text">
+                <button className="control-button secondary-control" onClick={goToPreviousPage} disabled={scriptPage === 1} data-testid="button-previous-text">
                   <ArrowLeft size={15} /> Texte précédent
                 </button>
-                <span data-testid="text-page-number">0{scriptPage} / 05</span>
-                <button className="control-button secondary-control" onClick={() => setScriptPage((page) => (page === 5 ? 5 : (page + 1) as 1 | 2 | 3 | 4 | 5))} disabled={scriptPage === 5} data-testid="button-next-text">
+                <span data-testid="text-page-number">0{scriptPage} / 06</span>
+                <button className="control-button secondary-control" onClick={goToNextPage} disabled={scriptPage === 6} data-testid="button-next-text">
                   Texte suivant <ArrowRight size={15} />
                 </button>
               </div>

@@ -6,9 +6,17 @@ export const PROJECTION_STORAGE_KEY = 'mesopotamie-projection-state-v1';
 export type ProjectionMedia =
   | 'workshop' | 'pazuzu' | 'clip' | 'babylon' | 'utukku'
   | 'palmyre' | 'ginnaye' | 'jinn' | 'arabians' | 'preIslam'
-  | 'cemeteries' | 'invisible' | 'animal' | 'chapter2'
+  | 'cemeteries' | 'invisible' | 'animal'
+  | 'toiletChapter' | 'chapter2' | 'chapter3'
   | 'blackCats' | 'blackDogs' | 'blackAndWhite'
-  | 'invocationSteps' | 'djinnCall' | 'hairRitual';
+  | 'invocationSteps' | 'djinnCall' | 'hairRitual'
+  | 'possessionDiagnosis' | 'dissociativeTrance' | 'kweiFu'
+  | 'study45' | 'study25' | 'study10'
+  | 'chapter3Group' | 'chapter3Movements' | 'chapter3Voice' | 'chapter3Diagnosis'
+  | 'dsmReference' | 'chapter3Explanation' | 'crossReaction' | 'quranReaction'
+  | 'shiaReaction' | 'djinnReaction' | 'beliefs';
+export type FloatingTermId =
+  | 'jinnPossession' | 'masDjinns' | 'lamss' | 'blackMagic' | 'occultPractices';
 export type ProjectionState = {
   media: ProjectionMedia;
   clipPlaying: boolean;
@@ -16,6 +24,7 @@ export type ProjectionState = {
   overlayText: string | null;
   showArrow: boolean;
   targetText: string | null;
+  floatingTerms: FloatingTermId[];
 };
 
 const initialProjectionState: ProjectionState = {
@@ -25,19 +34,30 @@ const initialProjectionState: ProjectionState = {
   overlayText: null,
   showArrow: false,
   targetText: null,
+  floatingTerms: [],
 };
 
 const videoMedia: ProjectionMedia[] = [
   'clip', 'ginnaye', 'jinn', 'arabians', 'preIslam', 'cemeteries', 'invisible',
   'blackCats', 'blackDogs', 'blackAndWhite', 'invocationSteps', 'djinnCall', 'hairRitual',
+  'chapter3Group', 'chapter3Movements', 'chapter3Voice', 'chapter3Diagnosis',
+  'dsmReference', 'chapter3Explanation', 'crossReaction', 'quranReaction',
+  'shiaReaction', 'djinnReaction',
+];
+const floatingTermIds: FloatingTermId[] = [
+  'jinnPossession', 'masDjinns', 'lamss', 'blackMagic', 'occultPractices',
 ];
 
 function isProjectionMedia(value: unknown): value is ProjectionMedia {
   return typeof value === 'string' && [
     'workshop', 'pazuzu', 'clip', 'babylon', 'utukku', 'palmyre',
     'ginnaye', 'jinn', 'arabians', 'preIslam', 'cemeteries', 'invisible', 'animal',
-    'chapter2', 'blackCats', 'blackDogs', 'blackAndWhite',
-    'invocationSteps', 'djinnCall', 'hairRitual',
+    'toiletChapter', 'chapter2', 'chapter3', 'blackCats', 'blackDogs', 'blackAndWhite',
+    'invocationSteps', 'djinnCall', 'hairRitual', 'possessionDiagnosis',
+    'dissociativeTrance', 'kweiFu', 'study45', 'study25', 'study10',
+    'chapter3Group', 'chapter3Movements', 'chapter3Voice', 'chapter3Diagnosis',
+    'dsmReference', 'chapter3Explanation', 'crossReaction', 'quranReaction',
+    'shiaReaction', 'djinnReaction', 'beliefs',
   ].includes(value);
 }
 
@@ -58,6 +78,11 @@ function parseProjectionState(value: unknown): ProjectionState | null {
       overlayText: typeof record.overlayText === 'string' ? record.overlayText : null,
       showArrow: record.showArrow === true,
       targetText: typeof record.targetText === 'string' ? record.targetText : null,
+      floatingTerms: Array.isArray(record.floatingTerms)
+        ? record.floatingTerms.filter((term): term is FloatingTermId => (
+          typeof term === 'string' && floatingTermIds.includes(term as FloatingTermId)
+        ))
+        : [],
     };
   }
 
@@ -74,6 +99,7 @@ function parseProjectionState(value: unknown): ProjectionState | null {
       overlayText: null,
       showArrow: false,
       targetText: null,
+      floatingTerms: [],
     };
   }
   if (record.slideIndex === 0) return { ...initialProjectionState, resetToken: record.resetToken };
@@ -150,6 +176,7 @@ export function useProjectionState() {
       overlayText,
       showArrow,
       targetText,
+      floatingTerms: [],
     });
   }, [commit, state]);
 
@@ -159,6 +186,22 @@ export function useProjectionState() {
     targetText: string | null = null,
   ) => {
     commit({ ...state, overlayText, showArrow, targetText });
+  }, [commit, state]);
+
+  const addFloatingTerm = useCallback((term: FloatingTermId) => {
+    const floatingTerms = state.floatingTerms.includes(term)
+      ? state.floatingTerms
+      : [...state.floatingTerms, term];
+    commit({
+      ...state,
+      media: 'beliefs',
+      clipPlaying: false,
+      resetToken: state.resetToken + 1,
+      overlayText: null,
+      showArrow: false,
+      targetText: null,
+      floatingTerms,
+    });
   }, [commit, state]);
 
   const toggleClip = useCallback(() => {
@@ -183,5 +226,5 @@ export function useProjectionState() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [state.media, toggleClip]);
 
-  return { state, publish, setMedia, setOverlay, toggleClip };
+  return { state, publish, setMedia, setOverlay, addFloatingTerm, toggleClip };
 }
