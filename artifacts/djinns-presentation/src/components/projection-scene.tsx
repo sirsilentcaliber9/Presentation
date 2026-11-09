@@ -85,7 +85,7 @@ export function ProjectionScene({ state, mode }: ProjectionSceneProps) {
       )}
 
       <div
-        className={`projection-video-layer ${state.media === 'clip' ? 'is-pazuzu-clip' : ''} ${media.fullScreenVideo ? 'is-fullscreen-clip' : ''}`}
+        className={`projection-video-layer ${state.media === 'clip' ? 'is-pazuzu-clip' : ''} ${media.fullScreenVideo ? 'is-fullscreen-clip' : ''} ${media.videoFit === 'cover' ? 'is-cover-video' : ''}`}
         aria-hidden={!media.video}
         data-testid={media.video ? 'projection-video-layer' : undefined}
       >

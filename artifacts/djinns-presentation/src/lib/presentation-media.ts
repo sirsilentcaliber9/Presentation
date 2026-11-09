@@ -28,8 +28,27 @@ import dsmVideo from '../assets/chapter3-dsm-reference.mp4';
 import explanationVideo from '../assets/chapter3-explanation.mp4';
 import crossVideo from '../assets/chapter3-cross-reaction.mp4';
 import quranVideo from '../assets/chapter3-quran-reaction.mp4';
-import shiaVideo from '../assets/chapter3-shia-reaction.mp4';
 import djinnVideo from '../assets/chapter3-djinn-reaction.mp4';
+import childAgeImage from '../assets/chapter3-children-age.jpg';
+import childConvulsionsImage from '../assets/chapter3-child-convulsions.jpg';
+import otherVoiceVideo from '../assets/chapter3-other-person-voice.mp4';
+import holyWaterVideo from '../assets/chapter3-buddhist-holy-water.mp4';
+import quranEnglishVideo from '../assets/chapter3-quran-english.mp4';
+import sheikhRecitationVideo from '../assets/chapter3-sheikh-recitation.mp4';
+import patientReactionVideo from '../assets/chapter3-patient-reaction.mp4';
+import therapyVideo from '../assets/chapter3-therapy.mp4';
+import possessedGirlVideo from '../assets/chapter4-possessed-girl.mp4';
+import hysteriaDocumentaryVideo from '../assets/chapter4-hysteria-documentary.mp4';
+import temporalLobeVideo from '../assets/chapter4-temporal-lobe.mp4';
+import seizuresVideo from '../assets/chapter4-seizures.mp4';
+import memoryLossVideo from '../assets/chapter4-memory-loss.mp4';
+import hallucinationsVideo from '../assets/chapter4-hallucinations.mp4';
+import hierophobiaVideo from '../assets/chapter4-hierophobia.mp4';
+import churchVideo from '../assets/chapter4-church.mp4';
+import priestVideo from '../assets/chapter4-priest.mp4';
+import crossVideoChapter4 from '../assets/chapter4-cross.mp4';
+import traumaticPriestVideo from '../assets/chapter4-traumatic-priest.mp4';
+import adhanReactionVideo from '../assets/chapter4-adhan-reaction.mp4';
 import type { ProjectionMedia } from './projection-state';
 
 export type MediaCard = {
@@ -45,6 +64,7 @@ export type PresentationMedia = {
   audible?: boolean;
   loop?: boolean;
   fullScreenVideo?: boolean;
+  videoFit?: 'contain' | 'cover';
   overlayImage?: string;
   titleCard?: MediaCard;
   openingTitle?: string;
@@ -106,9 +126,15 @@ export const presentationMedia: Record<ProjectionMedia, PresentationMedia> = {
     image: scenery,
     titleCard: { eyebrow: 'Chapitre 3', title: 'L’explication scientifique derrière la possession' },
   },
+  chapter4: {
+    label: 'Chapitre 4 · L’ignorance des maladies mentales',
+    alt: 'Titre du chapitre sur l’ignorance des maladies mentales',
+    image: scenery,
+    titleCard: { eyebrow: 'Chapitre 4', title: 'L’ignorance des maladies mentales' },
+  },
   blackCats: { label: 'Chats noirs', alt: 'Clip sur les chats noirs', image: scenery, video: blackCatsVideo, audible: true, fullScreenVideo: true },
-  blackDogs: { label: 'Chiens noirs', alt: 'Clip sur les chiens noirs', image: scenery, video: blackDogsVideo, audible: true, fullScreenVideo: true },
-  blackAndWhite: { label: 'Noir et blanc', alt: 'Clip sur les croyances autour du noir et du blanc', image: scenery, video: blackAndWhiteVideo, audible: true, fullScreenVideo: true },
+  blackDogs: { label: 'Chiens noirs', alt: 'Clip sur les chiens noirs', image: scenery, video: blackDogsVideo, audible: true, fullScreenVideo: true, videoFit: 'cover' },
+  blackAndWhite: { label: 'Noir et blanc', alt: 'Clip sur les croyances autour du noir et du blanc', image: scenery, video: blackAndWhiteVideo, audible: true, fullScreenVideo: true, videoFit: 'cover' },
   invocationSteps: { label: 'Étapes d’invocation', alt: 'Clip sur les étapes d’invocation', image: scenery, video: invocationStepsVideo, audible: true, fullScreenVideo: true },
   djinnCall: { label: 'Invocation du djinn', alt: 'Clip sur l’invocation d’un djinn', image: scenery, video: djinnCallVideo, audible: true, fullScreenVideo: true },
   hairRitual: { label: 'Cheveux et rituel', alt: 'Clip sur le rituel des cheveux', image: scenery, video: hairRitualVideo, audible: true, fullScreenVideo: true },
@@ -145,16 +171,43 @@ export const presentationMedia: Record<ProjectionMedia, PresentationMedia> = {
     alt: 'Extrait de l’étude : 10 % des patients rapportaient une possession par des esprits',
     image: possession10Image,
   },
-  chapter3Group: { label: 'Étude en Chine · groupe', alt: 'Clip sur les personnes de l’étude menée en Chine', image: scenery, video: groupVideo, audible: true, fullScreenVideo: true },
-  chapter3Movements: { label: 'Symptômes · mouvements', alt: 'Clip sur le contrôle des mouvements', image: scenery, video: movementsVideo, audible: true, fullScreenVideo: true },
+  chapter3Group: { label: 'Étude en Chine · groupe', alt: 'Clip sur les personnes de l’étude menée en Chine', image: scenery, video: groupVideo, audible: false, fullScreenVideo: true },
+  chapter3Movements: { label: 'Symptômes · mouvements', alt: 'Clip sur le contrôle des mouvements', image: scenery, video: movementsVideo, audible: false, fullScreenVideo: true },
   chapter3Voice: { label: 'Symptômes · voix', alt: 'Clip sur les changements de voix', image: scenery, video: voiceVideo, audible: true, fullScreenVideo: true },
   chapter3Diagnosis: { label: 'Étude · diagnostic', alt: 'Clip sur le diagnostic de l’étude', image: scenery, video: diagnosisVideo, audible: true, fullScreenVideo: true },
   dsmReference: { label: 'Référence · DSM-5', alt: 'Clip sur le manuel diagnostique DSM-5', image: scenery, video: dsmVideo, audible: true, fullScreenVideo: true },
   chapter3Explanation: { label: 'Étude · explication', alt: 'Clip sur les symptômes liés aux croyances du patient', image: scenery, video: explanationVideo, audible: true, fullScreenVideo: true },
   crossReaction: { label: 'Réaction · croix', alt: 'Clip sur la réaction à une croix', image: scenery, video: crossVideo, audible: true, fullScreenVideo: true },
   quranReaction: { label: 'Réaction · Coran', alt: 'Clip sur la réaction à la récitation du Coran', image: scenery, video: quranVideo, audible: true, fullScreenVideo: true },
-  shiaReaction: { label: 'Réaction · chiites', alt: 'Clip sur les réactions des patients chiites', image: scenery, video: shiaVideo, audible: true, fullScreenVideo: true },
   djinnReaction: { label: 'Réaction · djinns', alt: 'Clip sur les symptômes associés aux djinns', image: scenery, video: djinnVideo, audible: true, fullScreenVideo: true },
+  childDevelopmentQuestion: {
+    label: 'Enfance · développement dissociatif',
+    alt: 'Extrait scientifique sur le développement et les symptômes chez les enfants',
+    image: childAgeImage,
+  },
+  childConvulsions: {
+    label: 'Enfance · symptômes précoces',
+    alt: 'Extrait scientifique sur les premiers symptômes chez les enfants',
+    image: childConvulsionsImage,
+  },
+  chapter3OtherVoice: { label: 'Exemple · changement de voix', alt: 'Clip sur le fait de parler comme une autre personne', image: scenery, video: otherVoiceVideo, audible: true },
+  chapter3HolyWater: { label: 'Exemple · eau bénite', alt: 'Clip sur une expérience avec de l’eau bénite', image: scenery, video: holyWaterVideo, audible: true },
+  chapter3QuranEnglish: { label: 'Exemple · Coran en anglais', alt: 'Clip sur une récitation en anglais', image: scenery, video: quranEnglishVideo, audible: true },
+  chapter3SheikhRecitation: { label: 'Exemple · récitation du cheikh', alt: 'Clip sur une récitation avec une intonation particulière', image: scenery, video: sheikhRecitationVideo, audible: true },
+  chapter3PatientReaction: { label: 'Réaction du patient', alt: 'Clip sur la réaction du patient à un objet extérieur', image: scenery, video: patientReactionVideo, audible: true },
+  chapter3Therapy: { label: 'Traitement psychologique', alt: 'Clip sur le traitement du trouble de la possession', image: scenery, video: therapyVideo, audible: true },
+  chapter4PossessedGirl: { label: 'Exemple · hystérie', alt: 'Documentaire sur une jeune fille présentant des symptômes d’hystérie', image: scenery, video: possessedGirlVideo, audible: true },
+  chapter4HysteriaDocumentary: { label: 'Documentaire · hystérie', alt: 'Documentaire scientifique de 1967 sur l’hystérie', image: scenery, video: hysteriaDocumentaryVideo, audible: true },
+  chapter4TemporalLobe: { label: 'Épilepsie du lobe temporal', alt: 'Clip sur le lobe temporal', image: scenery, video: temporalLobeVideo, audible: false },
+  chapter4Seizures: { label: 'Crises épileptiques', alt: 'Clip sur les crises épileptiques', image: scenery, video: seizuresVideo, audible: false },
+  chapter4MemoryLoss: { label: 'Perte de mémoire', alt: 'Clip sur la perte de mémoire', image: scenery, video: memoryLossVideo, audible: true },
+  chapter4Hallucinations: { label: 'Hallucinations', alt: 'Clip sur les hallucinations', image: scenery, video: hallucinationsVideo, audible: false },
+  chapter4Hierophobia: { label: 'Hiérophobie', alt: 'Clip sur la peur des éléments sacrés', image: scenery, video: hierophobiaVideo, audible: false },
+  chapter4Church: { label: 'Hiérophobie · église', alt: 'Clip sur une église', image: scenery, video: churchVideo, audible: true },
+  chapter4Priest: { label: 'Hiérophobie · prêtre', alt: 'Clip sur un prêtre', image: scenery, video: priestVideo, audible: true },
+  chapter4Cross: { label: 'Hiérophobie · croix', alt: 'Clip sur une croix', image: scenery, video: crossVideoChapter4, audible: true },
+  chapter4TraumaticPriest: { label: 'Traumatisme · prêtre', alt: 'Clip sur un traumatisme impliquant un prêtre', image: scenery, video: traumaticPriestVideo, audible: true },
+  chapter4AdhanReaction: { label: 'Réaction à l’Adhan', alt: 'Clip sur la réaction à l’appel à la prière', image: scenery, video: adhanReactionVideo, audible: true },
   beliefs: { label: 'Croyances et superstitions', alt: 'Croyances présentées sous différentes formes', image: scenery },
 };
 

@@ -4,7 +4,7 @@ import { ProjectionScene } from '@/components/projection-scene';
 import { projectionAssetUrls, presentationMedia } from '@/lib/presentation-media';
 import { ProjectionMedia, type FloatingTermId, useProjectionState } from '@/lib/projection-state';
 
-type ScriptPage = 1 | 2 | 3 | 4 | 5 | 6;
+type ScriptPage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 type AssetPreloadState = {
   status: 'loading' | 'ready' | 'failed';
@@ -199,7 +199,7 @@ export default function Presenter() {
     setScriptPage(page);
     if (page === 1) {
       publish();
-    } else if (page === 2 || page === 5) {
+    } else if (page === 2 || page === 5 || page === 7) {
       setMedia('palmyre');
     } else if (page === 3) {
       setMedia('toiletChapter');
@@ -207,10 +207,12 @@ export default function Presenter() {
       setMedia('chapter2');
     } else if (page === 6) {
       setMedia('chapter3');
+    } else if (page === 8) {
+      setMedia('chapter4');
     }
   };
   const goToPreviousPage = () => changeScriptPage(Math.max(1, scriptPage - 1) as ScriptPage);
-  const goToNextPage = () => changeScriptPage(Math.min(6, scriptPage + 1) as ScriptPage);
+  const goToNextPage = () => changeScriptPage(Math.min(8, scriptPage + 1) as ScriptPage);
 
   const projectionUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/projection`;
   const openProjection = () => {
@@ -296,7 +298,7 @@ export default function Presenter() {
           <div className="presenter-column">
             <article className="script-panel">
               <div className="panel-label">
-                <span>Texte à dire · page {scriptPage} sur 6</span>
+                <span>Texte à dire · page {scriptPage} sur 8</span>
                 <span className="private-badge"><LockKeyhole size={12} /> Privé</span>
               </div>
               {scriptPage === 1 ? (
@@ -384,8 +386,8 @@ export default function Presenter() {
                     Imaginons que vous ayez fait tout ça et, en supposant bien sûr que les djinns existent. Et si le djinn ne se manifestait pas, qu’est-ce que vous feriez ? Vous iriez le chercher vous-même ?
                   </p>
                 </div>
-              ) : (
-                <div className="script-text chapter-three-script" data-testid="text-private-script" data-script-page="6">
+              ) : scriptPage === 6 ? (
+                <div className="script-text long-script-page" data-testid="text-private-script" data-script-page="6">
                   <h2 className="script-chapter-title">Chapitre 3 : « L’explication scientifique derrière la possession »</h2>
                   <p>
                     Il y a eu une étude menée par un <Hotspot media="chapter3Group" testId="hotspot-chapter3-group" onSelect={setMedia}>groupe</Hotspot> de personnes hospitalisées dans un établissement psychiatrique en Chine, qui croyaient être possédées.
@@ -424,7 +426,132 @@ export default function Presenter() {
                     Et c’est pour cette raison que les chrétiens souffrant de ce trouble deviennent extrêmement furieux lorsqu’on place une croix devant <Hotspot media="crossReaction" testId="hotspot-cross-reaction" onSelect={setMedia}>eux</Hotspot>. Parce qu’ils croient être possédés par un démon et sont profondément convaincus que les démons craignent la croix.
                   </p>
                   <p>
-                    De même, les musulmans souffrant de ce trouble peuvent entrer dans une grande colère lorsqu’on récite le Coran devant <Hotspot media="quranReaction" testId="hotspot-quran-reaction" onSelect={setMedia}>eux</Hotspot>, et les <Hotspot media="shiaReaction" testId="hotspot-shia-reaction" onSelect={setMedia}>shiaas aussi</Hotspot>, car ils associent ces réactions aux symptômes de la possession par les <Hotspot media="djinnReaction" testId="hotspot-djinn-reaction" onSelect={setMedia}>djinns</Hotspot>.
+                    De même, les musulmans souffrant de ce trouble peuvent entrer dans une grande colère lorsqu’on récite le Coran devant <Hotspot media="quranReaction" testId="hotspot-quran-reaction" onSelect={setMedia}>eux</Hotspot>, car ils associent ces réactions aux symptômes de la possession par les <Hotspot media="djinnReaction" testId="hotspot-djinn-reaction" onSelect={setMedia}>djinns</Hotspot>.
+                  </p>
+                </div>
+              ) : scriptPage === 7 ? (
+                <div className="script-text long-script-page" data-testid="text-private-script" data-script-page="7">
+                  <p>
+                    Et cela s’explique notamment par le fait que les croyances d’une personne, ainsi que les mauvaises expériences qu’elle a vécues au cours de sa vie, peuvent contribuer au développement de ce trouble.
+                  </p>
+                  <p>
+                    Ces expériences peuvent être si traumatisantes qu’elles poussent son esprit à se dissocier de la réalité.
+                  </p>
+                  <p>
+                    C’est pourquoi on ne trouve généralement pas d’enfants de 2, 3 ou 4 ans présentant ce type de possession. Vous êtes-vous déjà demandé <Hotspot media="childDevelopmentQuestion" testId="hotspot-child-development-question" onSelect={setMedia}>pourquoi</Hotspot> ?
+                  </p>
+                  <p>
+                    Parce qu’à cet âge précoce, les enfants ne connaissent pas encore ces superstitions. Leurs représentations mentales ne sont pas encore pleinement développées et ils n’ont pas vécu suffisamment de mauvaises expériences pour que leur esprit se dissocie de la réalité de cette manière.
+                  </p>
+                  <p>
+                    Ils peuvent néanmoins souffrir d’un trouble dissociatif de l’identité, mais les symptômes peuvent encore être à leurs premiers stades de développement, comme des pertes de mémoire temporaires, des problèmes de concentration, voire parfois des <Hotspot media="childConvulsions" testId="hotspot-child-convulsions" onSelect={setMedia}>crises convulsives</Hotspot>.
+                  </p>
+                  <p>
+                    Cependant, il est très peu probable de les voir présenter les symptômes de possession que l’on observe chez les personnes plus âgées. Comme le changement de voix ou le fait de parler comme s’ils étaient quelqu’un d’<Hotspot media="chapter3OtherVoice" testId="hotspot-other-person-voice" onSelect={setMedia}>autre</Hotspot>.
+                  </p>
+                  <p>
+                    Et pour vous faire mieux comprendre qu’il s’agit d’un trouble psychologique, prenons un exemple. Imaginons un bouddhiste qui croit être possédé par une divinité maléfique. Supposons que nous lui jetions de l’<Hotspot media="chapter3HolyWater" testId="hotspot-buddhist-holy-water" onSelect={setMedia}>eau bénite</Hotspot>.
+                  </p>
+                  <p>
+                    Pensez-vous qu’il se passerait quelque chose ? Bien sûr que non.
+                  </p>
+                  <p>
+                    En revanche, si nous jetions cette même eau sur un chrétien qui croit être possédé, il pourrait perdre connaissance. Pourquoi ? Parce que son esprit est convaincu que le démon qui, selon lui, le possède, craint l’eau bénite.
+                  </p>
+                  <p>
+                    Prenons maintenant le cas d’un Chinois qui croit être possédé par un esprit. Si nous lui récitions le Coran… Rien ne se passerait.
+                  </p>
+                  <p>
+                    Et si nous prenions une musulmane qui croit être possédée, puis demandions à un acteur étranger de lui réciter le Coran, sans qu’elle sache qu’il s’agit du Coran ?
+                  </p>
+                  <p>
+                    Par exemple, en lui faisant réciter le texte en anglais, sur un ton ordinaire, comme s’il lisait un simple <Hotspot media="chapter3QuranEnglish" testId="hotspot-quran-english" onSelect={setMedia}>livre</Hotspot>. Rien ne se passerait non plus.
+                  </p>
+                  <p>
+                    Car, même s’il s’agit bien du Coran, ce n’est pas le Coran tel qu’il existe dans son esprit.
+                  </p>
+                  <p>
+                    Celui qui est associé à un cheikh vêtu d’une djellaba blanche, récitant les versets à voix haute, avec une <Hotspot media="chapter3SheikhRecitation" testId="hotspot-sheikh-recitation" onSelect={setMedia}>intonation bien particulière</Hotspot>.
+                  </p>
+                  <p>
+                    Tout cela se passe dans l’esprit du patient, et non dans l’objet ou le phénomène extérieur auquel il <Hotspot media="chapter3PatientReaction" testId="hotspot-patient-reaction" onSelect={setMedia}>réagit</Hotspot>.
+                  </p>
+                  <p>
+                    Et c’est pour cette raison que, lorsqu’un psychologue souhaite aider une personne souffrant d’un trouble de la possession, il intervient de deux manières : premièrement, sur le plan médical, à l’aide de médicaments ; deuxièmement, sur le plan psychologique, en cherchant à comprendre ce que le patient croit être à l’origine de sa possession et en tenant compte de ses croyances.
+                  </p>
+                  <p>
+                    Cela leur permet de mieux comprendre sa vie et les situations qu’il a traversées. Ils commencent ensuite à traiter les conflits psychologiques qui ont conduit à son état. Puis, progressivement, ils l’aident à retrouver son rapport avec la réalité.
+                  </p>
+                  <p>
+                    Mais certainement pas en renforçant sa dissociation en lui disant : « Oui, c’est bien ta tante qui te possède. Tu dois aller voir un moine, car lui seul détient la solution. »
+                  </p>
+                  <p>
+                    Ou encore : « Oui, ma sœur, tu as un djinn amoureux à l’intérieur de toi. Tu dois aller voir un cheikh pour qu’il le fasse sortir, car tu es possédée et ce djinn ne te laissera jamais tranquille si tu ne le fais <Hotspot media="chapter3Therapy" testId="hotspot-chapter3-therapy" onSelect={setMedia}>pas</Hotspot>. »
+                  </p>
+                </div>
+              ) : (
+                <div className="script-text long-script-page" data-testid="text-private-script" data-script-page="8">
+                  <h2 className="script-chapter-title">Chapitre 4 : « L’ignorance des maladies mentales »</h2>
+                  <p>
+                    Tous les patients ayant participé à cette étude souffraient d’un trouble dissociatif de l’identité.
+                  </p>
+                  <p>
+                    Mais cela ne signifie pas que toutes les personnes qualifiées de « possédées » souffrent nécessairement de ce seul trouble.
+                  </p>
+                  <p>
+                    En effet, il existe de nombreuses maladies qui, lorsqu’elles sont observées par quelqu’un qui n’y a jamais été confronté auparavant, peuvent être confondues avec des phénomènes de possession.
+                  </p>
+                  <p>
+                    Prenons cette vidéo, par exemple, qui montrerait une jeune fille possédée par un <Hotspot media="chapter4PossessedGirl" testId="hotspot-chapter4-possessed-girl" onSelect={setMedia}>démon</Hotspot>.
+                  </p>
+                  <p>Horrifiante, sans aucune explication rationnelle apparente.</p>
+                  <p>
+                    Mais en réalité, il ne s’agit pas d’une vidéo montrant une jeune fille possédée. C’est un extrait d’un documentaire scientifique datant de 1967, réalisé par l’Institut de psychiatrie <Hotspot media="chapter4HysteriaDocumentary" testId="hotspot-chapter4-hysteria-documentary" onSelect={setMedia}>La Rochefoucauld</Hotspot>.
+                  </p>
+                  <p>
+                    Cette séquence présente le cas d’une jeune fille souffrant d’un trouble mental appelé « hystérie ». Le documentaire illustre les symptômes des personnes qui en souffrent, notamment :
+                  </p>
+                  <p>• Des crises convulsives sévères qui les empêchent de contrôler leur corps.</p>
+                  <p>• Des hallucinations : elles voient des choses qui n’existent pas et entendent des sons qui ne sont pas réels.</p>
+                  <p>• Une incapacité à parler, voire à entendre les personnes qui les entourent pendant ces crises.</p>
+                  <p>
+                    À votre avis, combien de personnes parmi votre entourage, si on leur montrait cette vidéo sans leur révéler son origine, jureraient qu’il s’agit d’une personne possédée ?
+                  </p>
+                  <p>
+                    Et l’hystérie n’est pas le seul trouble que certains confondent avec la possession. Prenons par exemple l’<Hotspot media="palmyre" overlayText="ÉPILEPSIE" ariaLabel="Afficher le mot épilepsie sur la projection" testId="hotspot-epilepsy-label" onSelect={setMedia}>épilepsie</Hotspot> du <Hotspot media="palmyre" overlayText="LOBE" ariaLabel="Afficher le mot lobe sur la projection" testId="hotspot-lobe-label" onSelect={setMedia}>lobe</Hotspot> <Hotspot media="palmyre" overlayText="TEMPORAL" ariaLabel="Afficher le mot temporal sur la projection" testId="hotspot-temporal-label" onSelect={setMedia}>temporal</Hotspot>.
+                  </p>
+                  <p>
+                    Il s’agit d’une forme d’épilepsie qui survient lorsque le <Hotspot media="chapter4TemporalLobe" testId="hotspot-chapter4-temporal-lobe" onSelect={setMedia}>lobe</Hotspot> temporal du cerveau est endommagé à la suite d’un accident ou d’une maladie.
+                  </p>
+                  <p>
+                    Les personnes qui en souffrent peuvent être victimes de <Hotspot media="chapter4Seizures" testId="hotspot-chapter4-seizures" onSelect={setMedia}>crises</Hotspot> qui immobilisent leur corps, ainsi que de pertes de mémoire liées à certains événements.
+                  </p>
+                  <p>
+                    Cela signifie qu’une personne peut, par exemple, se retrouver dans une rue sans se souvenir de quand ni de comment elle y est <Hotspot media="chapter4MemoryLoss" testId="hotspot-chapter4-memory-loss" onSelect={setMedia}>arrivée</Hotspot>.
+                  </p>
+                  <p>
+                    Ces personnes peuvent également souffrir d’hallucinations : elles <Hotspot media="chapter4Hallucinations" testId="hotspot-chapter4-hallucinations" onSelect={setMedia}>voient</Hotspot> des choses qui n’existent pas et entendent des sons qui ne sont pas réels.
+                  </p>
+                  <p>
+                    Un autre trouble est l’<Hotspot media="chapter4Hierophobia" testId="hotspot-chapter4-hierophobia" onSelect={setMedia}>hiérophobie</Hotspot>.
+                  </p>
+                  <p>
+                    Les personnes qui en souffrent éprouvent une peur intense face à certains éléments sacrés, comme une <Hotspot media="chapter4Church" testId="hotspot-chapter4-church" onSelect={setMedia}>église</Hotspot>, un <Hotspot media="chapter4Priest" testId="hotspot-chapter4-priest" onSelect={setMedia}>prêtre</Hotspot>, un cheikh ou une <Hotspot media="chapter4Cross" testId="hotspot-chapter4-cross" onSelect={setMedia}>croix</Hotspot>.
+                  </p>
+                  <p>
+                    Cette peur peut être si intense qu’elles risquent de s’évanouir simplement à l’idée de se rendre dans un endroit où elles pourraient voir cet élément ou l’entendre.
+                  </p>
+                  <p>
+                    Mais pourquoi ces choses les terrifient-elles autant ? Pour deux raisons : l’une neurologique et l’autre psychologique. Ces peurs sont généralement liées à des traumatismes qu’elles ont vécus, notamment durant leur enfance.
+                  </p>
+                  <p>
+                    Par exemple, une personne peut être terrifiée à la vue d’un prêtre parce qu’elle a vécu, lorsqu’elle était jeune, une expérience traumatisante impliquant un <Hotspot media="chapter4TraumaticPriest" testId="hotspot-chapter4-traumatic-priest" onSelect={setMedia}>prêtre</Hotspot>.
+                  </p>
+                  <p>
+                    Ou encore, imaginons une femme dont le père, lorsqu’elle avait dix ans, la battait pour la forcer à accomplir ses prières à l’heure. Elle pourrait alors développer un trouble qui la ferait paniquer en entendant l’appel à la prière (Adhan) et lui ferait craindre le son du Coran.
+                  </p>
+                  <p>
+                    Et cela, même si elle ne se souvient plus de tous ces événements ou ne comprend pas pourquoi elle réagit de cette <Hotspot media="chapter4AdhanReaction" testId="hotspot-chapter4-adhan-reaction" onSelect={setMedia}>manière</Hotspot>.
                   </p>
                 </div>
               )}
@@ -432,8 +559,8 @@ export default function Presenter() {
                 <button className="control-button secondary-control" onClick={goToPreviousPage} disabled={scriptPage === 1} data-testid="button-previous-text">
                   <ArrowLeft size={15} /> Texte précédent
                 </button>
-                <span data-testid="text-page-number">0{scriptPage} / 06</span>
-                <button className="control-button secondary-control" onClick={goToNextPage} disabled={scriptPage === 6} data-testid="button-next-text">
+                <span data-testid="text-page-number">0{scriptPage} / 08</span>
+                <button className="control-button secondary-control" onClick={goToNextPage} disabled={scriptPage === 8} data-testid="button-next-text">
                   Texte suivant <ArrowRight size={15} />
                 </button>
               </div>

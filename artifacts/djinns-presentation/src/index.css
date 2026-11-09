@@ -548,7 +548,7 @@ button {
   font: 600 1.15em/1.2 var(--app-font-serif);
 }
 
-.chapter-three-script {
+.long-script-page {
   max-height: min(72dvh, 860px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -728,7 +728,7 @@ button {
 }
 
 .projection-video-layer.is-fullscreen-clip {
-  background: transparent;
+  background: #000;
 }
 
 .projection-video-layer.is-fullscreen-clip .projection-video {
@@ -740,6 +740,10 @@ button {
   filter: none;
   -webkit-mask-image: none;
   mask-image: none;
+}
+
+.projection-video-layer.is-fullscreen-clip.is-cover-video .projection-video {
+  object-fit: cover;
 }
 
 .projection-utukku-layer {
