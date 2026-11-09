@@ -14,7 +14,15 @@ export type ProjectionMedia =
   | 'study45' | 'study25' | 'study10'
   | 'chapter3Group' | 'chapter3Movements' | 'chapter3Voice' | 'chapter3Diagnosis'
   | 'dsmReference' | 'chapter3Explanation' | 'crossReaction' | 'quranReaction'
-  | 'shiaReaction' | 'djinnReaction' | 'beliefs';
+  | 'djinnReaction' | 'beliefs' | 'chapter4'
+  | 'childDevelopmentQuestion' | 'childConvulsions'
+  | 'chapter3OtherVoice' | 'chapter3HolyWater' | 'chapter3QuranEnglish'
+  | 'chapter3SheikhRecitation' | 'chapter3PatientReaction' | 'chapter3Therapy'
+  | 'chapter4PossessedGirl' | 'chapter4HysteriaDocumentary'
+  | 'chapter4TemporalLobe' | 'chapter4Seizures' | 'chapter4MemoryLoss'
+  | 'chapter4Hallucinations' | 'chapter4Hierophobia' | 'chapter4Church'
+  | 'chapter4Priest' | 'chapter4Cross' | 'chapter4TraumaticPriest'
+  | 'chapter4AdhanReaction';
 export type FloatingTermId =
   | 'jinnPossession' | 'masDjinns' | 'lamss' | 'blackMagic' | 'occultPractices';
 export type ProjectionState = {
@@ -42,7 +50,12 @@ const videoMedia: ProjectionMedia[] = [
   'blackCats', 'blackDogs', 'blackAndWhite', 'invocationSteps', 'djinnCall', 'hairRitual',
   'chapter3Group', 'chapter3Movements', 'chapter3Voice', 'chapter3Diagnosis',
   'dsmReference', 'chapter3Explanation', 'crossReaction', 'quranReaction',
-  'shiaReaction', 'djinnReaction',
+  'djinnReaction', 'chapter3OtherVoice', 'chapter3HolyWater', 'chapter3QuranEnglish',
+  'chapter3SheikhRecitation', 'chapter3PatientReaction', 'chapter3Therapy',
+  'chapter4PossessedGirl', 'chapter4HysteriaDocumentary', 'chapter4TemporalLobe',
+  'chapter4Seizures', 'chapter4MemoryLoss', 'chapter4Hallucinations',
+  'chapter4Hierophobia', 'chapter4Church', 'chapter4Priest', 'chapter4Cross',
+  'chapter4TraumaticPriest', 'chapter4AdhanReaction',
 ];
 const floatingTermIds: FloatingTermId[] = [
   'jinnPossession', 'masDjinns', 'lamss', 'blackMagic', 'occultPractices',
@@ -57,7 +70,13 @@ function isProjectionMedia(value: unknown): value is ProjectionMedia {
     'dissociativeTrance', 'kweiFu', 'study45', 'study25', 'study10',
     'chapter3Group', 'chapter3Movements', 'chapter3Voice', 'chapter3Diagnosis',
     'dsmReference', 'chapter3Explanation', 'crossReaction', 'quranReaction',
-    'shiaReaction', 'djinnReaction', 'beliefs',
+    'djinnReaction', 'beliefs', 'chapter4', 'childDevelopmentQuestion', 'childConvulsions',
+    'chapter3OtherVoice', 'chapter3HolyWater', 'chapter3QuranEnglish',
+    'chapter3SheikhRecitation', 'chapter3PatientReaction', 'chapter3Therapy',
+    'chapter4PossessedGirl', 'chapter4HysteriaDocumentary', 'chapter4TemporalLobe',
+    'chapter4Seizures', 'chapter4MemoryLoss', 'chapter4Hallucinations',
+    'chapter4Hierophobia', 'chapter4Church', 'chapter4Priest', 'chapter4Cross',
+    'chapter4TraumaticPriest', 'chapter4AdhanReaction',
   ].includes(value);
 }
 
