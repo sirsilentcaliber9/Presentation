@@ -8,10 +8,12 @@ An interactive French-language school presentation about djinns. The speaker use
 
 `artifacts/djinns-presentation/` is the publishable React + Vite application.
 
-- `src/pages/presenter.tsx` — presenter controls, five reading pages across two chapters, speaker notes, and phrase-linked media.
-- `src/pages/projection.tsx` — audience-facing projection screen, full-screen Utukku image, chapter titles, and video playback.
+- `src/pages/presenter.tsx` — presenter controls, six reading pages, speaker notes, and last-word media triggers.
+- `src/pages/projection.tsx` — audience-facing route using the shared projection scene.
+- `src/components/projection-scene.tsx` — identical visual renderer for presenter preview and projection, including preloaded video elements.
+- `src/lib/presentation-media.ts` — central scene/media map and asset list for preloading.
 - `src/lib/projection-state.ts` — shared browser state and synchronization via `localStorage` and `BroadcastChannel`.
-- `src/assets/` — images and video clips bundled with the presentation, including the Chapter 1 and Chapter 2 clips.
+- `src/assets/` — bundled images, source screenshots, and clips for all three chapters.
 - `public/` — favicon and crawler directives.
 - `src/index.css` — app theme and presentation styles.
 - `index.html` — document title, French language, and social/search metadata.
@@ -22,7 +24,7 @@ Routes:
 - `/projection` — projection view.
 
 The console is not authentication-protected. It should not be treated as private when the site is published. Projection sync is browser-local; the two views need to be open in the same browser profile.
-The six added chapter clips are configured with audio; a browser that blocks autoplay may require pressing the on-screen play button.
+Videos keep their source audio in the public projection; browsers may require a click to start audio. The private preview is muted to avoid duplicate sound.
 
 ## Workspace packages
 
